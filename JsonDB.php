@@ -11,24 +11,32 @@ class JsonDB {
      * @var array The data of the database.
      */
     private $data;
-
+    /**
+     * @var string File Name
+     */
+    private $filename;
+    /**
+     * @var string the switch whether to encrypt or not
+     */
+    private $isEncrypted;
     /**
      * @var string The key used for encryption and decryption.
      */
     private $encryptionKey;
-
     /**
      * @var string The encryption method used by OpenSSL.
      */
-    private $encryptionMethod = 'AES-128-CTR';
-
+    private $encryptionMethod;
     /**
      * Creates a new database instance.
      * 
      * @param string $encryptionKey The key used for encryption and decryption.
      */
-    public function __construct($encryptionKey) {
-        $this->encryptionKey = $encryptionKey;
+    public function __construct($filename, $encrypt = [false, '', '']) {
+        $this->filename = $filename;
+        $this->isEncrypted = $encrypt[0];
+        $this->encryptionKey = $encrypt[1];
+        $this->encryptionMethod = $encrypt[2] ?? 'AES-256-CBC';
         $this->data = [];
     }
 
@@ -39,8 +47,14 @@ class JsonDB {
      */
     public function loadFromFile($filename) {
         $contents = file_get_contents($filename);
-        $decrypted = openssl_decrypt($contents, $this->encryptionMethod, $this->encryptionKey);
-        $this->data = json_decode($decrypted, true);
+        if (!$this->isEncrypted) {
+            $decrypted = openssl_decrypt($contents, $this->encryptionMethod, $this->encryptionKey);
+            $this->data = json_decode($decrypted, true);
+        }
+        else {
+            $this->data = json_decode($contents, true);
+        }
+        
     }
 
     /**
@@ -50,8 +64,13 @@ class JsonDB {
      */
     public function saveToFile($filename) {
         $json = json_encode($this->data);
-        $encrypted = openssl_encrypt($json, $this->encryptionMethod, $this->encryptionKey);
-        file_put_contents($filename, $encrypted);
+        if (!$this->isEncrypted) {
+            $encrypted = openssl_encrypt($json, $this->encryptionMethod, $this->encryptionKey);
+            file_put_contents($filename, $encrypted);
+        }
+        else {
+            file_put_contents($filename, $json);
+        }
     }
 
     /**
