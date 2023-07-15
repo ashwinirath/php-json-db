@@ -15,11 +15,8 @@ PHP JSON DB is a simple, lightweight, and secure JSON-based database in PHP, dev
 // Include the class
 require_once 'JsonDB.php';
 
-// Create a new database instance with your encryption key
-$db = new JsonDB('your-encryption-key');
-
-// Load data from a file
-$db->loadFromFile('your-file.json');
+// Create a new database instance with your data loaded from a file. You may or may not encrypt your data
+$db = new JsonDB($filename, $encrypt = [false, '', '']);
 
 // Put a value in the database
 $db->put('key', 'value');
