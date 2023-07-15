@@ -32,3 +32,6 @@ $db->delete('key');
 
 // Save data to a file
 $db->saveToFile('your-file.json');
+
+Note: You should replace `'your-encryption-key'` and `'your-file.json'` with the actual encryption key and file name you're using.
+
