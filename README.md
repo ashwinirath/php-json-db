@@ -13,6 +13,7 @@ PHP JSON DB is a simple, lightweight, and secure JSON-based database in PHP, dev
 To get started with **JsonDB**, you first need to include the JsonDB class in your PHP script:
 ```php
 require_once 'JsonDB.php';
+``
 
 ## Usage
 ### Creating a new JsonDB Instance
