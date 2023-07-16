@@ -37,16 +37,14 @@ class JsonDB {
         $this->isEncrypted = $encrypt[0];
         $this->encryptionKey = $encrypt[1];
         $this->encryptionMethod = $encrypt[2] ?? 'AES-256-CBC';
-        $this->data = [];
+        $this->loadFromFile();
     }
 
     /**
      * Loads the data from a file.
-     * 
-     * @param string $filename The name of the file.
      */
-    public function loadFromFile($filename) {
-        $contents = file_get_contents($filename);
+    public function loadFromFile() {
+        $contents = file_get_contents($this->filename);
         if (!$this->isEncrypted) {
             $decrypted = openssl_decrypt($contents, $this->encryptionMethod, $this->encryptionKey);
             $this->data = json_decode($decrypted, true);
@@ -59,17 +57,15 @@ class JsonDB {
 
     /**
      * Saves the data to a file.
-     * 
-     * @param string $filename The name of the file.
      */
-    public function saveToFile($filename) {
+    public function saveToFile() {
         $json = json_encode($this->data);
         if (!$this->isEncrypted) {
             $encrypted = openssl_encrypt($json, $this->encryptionMethod, $this->encryptionKey);
-            file_put_contents($filename, $encrypted);
+            file_put_contents($this->filename, $encrypted);
         }
         else {
-            file_put_contents($filename, $json);
+            file_put_contents($this->filename, $json);
         }
     }
 
@@ -81,6 +77,7 @@ class JsonDB {
      */
     public function put($key, $value) {
         $this->data[$key] = $value;
+        $this->saveToFile();
     }
 
     /**
@@ -95,6 +92,7 @@ class JsonDB {
         }
 
         $this->data[$key][] = $value;
+        $this->saveToFile();
     }
 
     /**
@@ -104,6 +102,7 @@ class JsonDB {
      */
     public function delete($key) {
         unset($this->data[$key]);
+        $this->saveToFile();
     }
 
     /**
